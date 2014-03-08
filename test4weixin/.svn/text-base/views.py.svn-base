@@ -5,7 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.encoding import smart_str, smart_unicode
 
 import xml.etree.ElementTree as ET
-import urllib,urllib2,time,hashlib
+import urllib,urllib2,time,hashlib,json
 
 TOKEN = "test4weixintoken"
 
@@ -34,11 +34,30 @@ def checkSignature(request):
         return None
 
 def responseMsg(request):
+    print '1',time.time()
     rawStr = smart_str(request.raw_post_data)
     msg = parseMsgXml(ET.fromstring(rawStr))
-#   print msg
+    simsimiurl = 'http://sandbox.api.simsimi.com/request.p?'
+    simsimikey = '8620893f-b4cc-44eb-8041-fbdbde90ca2c'
+    param = {
+	'text' : msg['Content'],
+	'ft' : 1.0,
+        'lc' : 'ch',
+        'key': simsimikey,
+    }
+    simsimiurl = simsimiurl + urllib.urlencode(param)
+    print '2',time.time()
+    print simsimiurl
+    f = urllib2.urlopen(simsimiurl,timeout=4)
+    print '3',time.time()
+    resStr = f.read()
+    print '4',time.time()
+    resJson = json.loads(resStr)
+    if resJson['result'] == 100:
+        return getTextReply(msg, resJson['response'])
+    else:
+        return getTextReply(msg, '小黄鸡死了~ORZ')
 #   print getTextReply(msg, 'hello,world')
-    return getTextReply(msg, 'hello,world')
 
 def parseMsgXml(rootElem):
     msg = {}
@@ -47,10 +66,32 @@ def parseMsgXml(rootElem):
 	    msg[child.tag] = smart_str(child.text)
     return msg
 
+def getTextPicReply():
+    extTPL = """<xml><ToUserName><![CDATA[%s]]></ToUserName>
+    		<FromUserName><![CDATA[%s]]></FromUserName>
+    		<CreateTime>%s</CreateTime>
+		<MsgType><![CDATA[%s]]></MsgType>
+    		<ArticleCount>1</ArticleCount>
+		<Articles>
+		<item>
+		Title><![CDATA[%s]]></Title>
+		<Description><![CDATA[%s]]></Description>
+		<PicUrl><![CDATA[%s]]></PicUrl>
+		<Url><![CDATA[%s]]></Url>
+		</item>
+		</Articles>
+		</xml>"""
+    
+
 def getTextReply(msg, replyContent):
-    extTPL = """<xml><ToUserName><![CDATA[%s]]></ToUserName><FromUserName><![CDATA[%s]]></FromUserName>
-    <CreateTime>%s</CreateTime><MsgType><![CDATA[%s]]></MsgType>
-    <Content><![CDATA[%s]]></Content><FuncFlag>0</FuncFlag></xml>"""
+    extTPL = """<xml>
+    		<ToUserName><![CDATA[%s]]></ToUserName>
+		<FromUserName><![CDATA[%s]]></FromUserName>
+    		<CreateTime>%s</CreateTime>
+		<MsgType><![CDATA[%s]]></MsgType>
+    		<Content><![CDATA[%s]]></Content>
+		<FuncFlag>0</FuncFlag>
+		</xml>"""
 
     extTPL = extTPL % (msg['FromUserName'],msg['ToUserName'],str(int(time.time())),'text',replyContent)
     return extTPL
