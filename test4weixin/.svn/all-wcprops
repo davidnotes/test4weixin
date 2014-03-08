@@ -3,18 +3,6 @@ svn:wc:ra_dav:version-url
 V 37
 /test4weixin/!svn/ver/2/1/test4weixin
 END
-wsgi.py
-K 25
-svn:wc:ra_dav:version-url
-V 45
-/test4weixin/!svn/ver/2/1/test4weixin/wsgi.py
-END
-views.py
-K 25
-svn:wc:ra_dav:version-url
-V 47
-/test4weixin/!svn/ver/22/1/test4weixin/views.py
-END
 __init__.py
 K 25
 svn:wc:ra_dav:version-url
@@ -32,4 +20,16 @@ K 25
 svn:wc:ra_dav:version-url
 V 46
 /test4weixin/!svn/ver/15/1/test4weixin/urls.py
+END
+wsgi.py
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/test4weixin/!svn/ver/2/1/test4weixin/wsgi.py
+END
+views.py
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/test4weixin/!svn/ver/29/1/test4weixin/views.py
 END
